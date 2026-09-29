@@ -29,7 +29,7 @@ export function SideNav({
 
   return (
     <nav className="mt-6 flex min-h-0 flex-1 flex-col">
-      <CreateButton align="start" />
+      <CreateButton />
 
       <ul className="mt-5 space-y-0.5">
         {items.map((item) => (

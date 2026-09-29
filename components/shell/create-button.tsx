@@ -1,30 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useLayoutEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "@/components/icons";
 import { CREATE_MENU } from "@/lib/constants";
 
-export function CreateButton({ align = "center", variant }: { align?: "center" | "start"; variant?: "fab" }) {
+export function CreateButton({ variant }: { variant?: "fab" }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
-  // Close the sheet whenever navigation happens.
-  useLayoutEffect(() => {
-    setOpen(false);
+  // Close the sheet after navigation completes (e.g. picking a create target
+  // in one tab, or navigating with the sheet still open).
+  useEffect(() => {
+    return () => setOpen(false);
   }, [pathname]);
-
-  // Dismiss on popstate/back — Android back button closes the sheet instead of leaving.
-  useLayoutEffect(() => {
-    if (!open) return;
-    router.push(pathname, { scroll: false }); // push a history entry we can consume
-    const onPop = () => setOpen(false);
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, [open, pathname, router]);
 
   if (variant === "fab") {
     return (

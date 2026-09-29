@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,14 +14,14 @@ const initial: LoginState = { step: "phone" };
 export function LoginForm() {
   const [state, setState] = useState<LoginState>(initial);
   const [pending, startTransition] = useTransition();
-  const [formError, setFormError] = useState<string | null>(null);
   const params = useSearchParams();
-
-  useEffect(() => {
-    const err = params.get("error");
-    if (err === "google_unconfigured") setFormError("Google sign-in isn't configured yet — use phone login or contact the admin.");
-    else if (err === "oauth_state" || err === "oauth_failed") setFormError("Google sign-in failed. Please try again.");
-  }, [params]);
+  const oauthError = params.get("error");
+  const formError =
+    oauthError === "google_unconfigured"
+      ? "Google sign-in isn't configured yet — use phone login or contact the admin."
+      : oauthError === "oauth_state" || oauthError === "oauth_failed"
+        ? "Google sign-in failed. Please try again."
+        : null;
 
   function submit(kind: "send" | "verify") {
     const formData = new FormData(document.getElementById("login-form") as HTMLFormElement);

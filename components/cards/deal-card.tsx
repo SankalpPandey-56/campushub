@@ -25,11 +25,16 @@ export type DealCardData = {
   createdAt: string;
 };
 
+/** Pure helper — the impure Date.now() call happens in memo-safe scope below. */
+function computeExpiry(expiresAt: string | null): { expired: boolean; daysLeft: number | null } {
+  if (!expiresAt) return { expired: false, daysLeft: null };
+  const expiry = new Date(expiresAt).getTime();
+  const now = Date.now();
+  return { expired: expiry < now, daysLeft: Math.ceil((expiry - now) / 86_400_000) };
+}
+
 export function DealCard({ deal, saved }: { deal: DealCardData; saved?: boolean }) {
-  const expired = deal.expiresAt ? new Date(deal.expiresAt) < new Date() : false;
-  const daysLeft = deal.expiresAt
-    ? Math.ceil((new Date(deal.expiresAt).getTime() - Date.now()) / 86_400_000)
-    : null;
+  const { expired, daysLeft } = computeExpiry(deal.expiresAt);
 
   return (
     <article className="card-surface overflow-hidden">

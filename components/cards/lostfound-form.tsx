@@ -30,7 +30,7 @@ export function LostFoundForm() {
 
       <label className="block">
         <span className="mb-1.5 block text-[13px] font-semibold">Description</span>
-        <textarea name="description" required rows={3} maxLength={1200} className="input-base resize-y" placeholder="Identifying details help — stickers, scratches, contents. Don't share anything you wouldn't want public." />
+        <textarea name="description" required rows={3} maxLength={1200} className="input-base resize-y" placeholder="Identifying details help — stickers, scratches, contents. Don&apos;t share anything you wouldn&apos;t want public." />
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -56,7 +56,7 @@ export function LostFoundForm() {
       </label>
 
       <p className="text-[12px] leading-relaxed text-[color:var(--color-ink-faint)]">
-        People contact you through CampusHub messages — keep valuables' proof-of-ownership questions
+        People contact you through CampusHub messages — keep valuables&apos; proof-of-ownership questions
         to that chat, and hand things over in a public spot.
       </p>
 
