@@ -4,7 +4,7 @@
 
 CampusHub is a verified student community platform for a college campus. One place for deals around campus, events, shared notes, a student marketplace, lost & found, and study groups — gated by manual campus verification so every member is a real student.
 
-**Live site:** _deploy to Vercel (see below), then add the URL here_
+**Live site:** https://campushub-pine.vercel.app
 
 ---
 
