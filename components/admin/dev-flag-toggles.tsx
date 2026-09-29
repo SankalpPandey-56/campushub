@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "@/components/ui/toaster";
 import { toggleFlagAction } from "@/app/(admin)/admin/dev/actions";
-import { FLAG_LABELS, type FlagKey } from "@/lib/flags";
+import { FLAG_LABELS, type FlagKey } from "@/lib/flag-constants";
 
 export function DevFlagToggles({ flags }: { flags: Record<FlagKey, boolean> }) {
   const [state, setState] = useState(flags);
