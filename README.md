@@ -6,6 +6,8 @@ CampusHub is a verified student community platform for a college campus. One pla
 
 **Live site:** https://campushub-pine.vercel.app
 
+**Android APK:** [CampusHub-v1.0.0.apk](https://github.com/SankalpPandey-56/campushub/releases/tag/v1.0.0) (GitHub Release)
+
 ---
 
 ## Features
@@ -170,7 +172,7 @@ See [.env.example](.env.example) for the full annotated list:
 
 ## Android app
 
-The Android build wraps the production site with Capacitor — the web app stays the single source of truth (push a fix once, the app inherits it). See `android/README.md` in the repo for build steps, signing instructions, and the release checklist.
+The Android build wraps the production site with Capacitor — the web app stays the single source of truth (push a fix once, the app inherits it). A signed `CampusHub-v1.0.0.apk` is attached to the [v1.0.0 GitHub Release](https://github.com/SankalpPandey-56/campushub/releases/tag/v1.0.0). See [android/README.md](android/README.md) for build steps, signing instructions, and the release checklist.
 
 ---
 
