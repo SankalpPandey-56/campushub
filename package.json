@@ -15,12 +15,18 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android",
+    "android:build": "cap sync android && cd android && ./gradlew assembleRelease bundleRelease",
     "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
     "@prisma/client": "^6.19.3",
     "framer-motion": "^12.23.0",
     "jose": "^6.1.0",

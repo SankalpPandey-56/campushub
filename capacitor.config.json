@@ -1,0 +1,21 @@
+{
+  "appId": "com.campushub.app",
+  "appName": "CampusHub",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://campushub-pine.vercel.app",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#f7f6f2",
+    "allowMixedContent": false
+  },
+  "splashScreen": {
+    "backgroundColor": "#f7f6f2",
+    "showSpinner": false,
+    "launchAutoHide": true,
+    "launchShowDuration": 1200
+  }
+}

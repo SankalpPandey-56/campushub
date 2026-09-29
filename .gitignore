@@ -39,3 +39,14 @@ next-env.d.ts
 AGENTS.md
 CLAUDE.md
 .freebuff/
+
+# Android signing secrets
+android/keystore.properties
+android/*.keystore
+android/*.jks
+android/app/build/
+android/.gradle/
+android/build/
+android/local.properties
+.capacitor/
+.env*
