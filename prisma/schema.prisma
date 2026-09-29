@@ -181,6 +181,21 @@ model VerificationRequest {
   @@index([userId])
 }
 
+// ── Phone OTP ────────────────────────────────────────────────────────────────
+
+model OtpToken {
+  id         String    @id @default(cuid())
+  phone      String
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([phone, createdAt])
+}
+
 // ── Campuses ─────────────────────────────────────────────────────────────────
 
 model Campus {
