@@ -1,0 +1,512 @@
+// CampusHub — data model
+// Campus-first community platform. Every content table is scoped to a campus.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum PostCategory {
+  CAMPUS
+  DEALS
+  EVENTS
+  RESOURCES
+  MARKETPLACE
+  LOST_FOUND
+}
+
+enum DealCategory {
+  FOOD
+  FASHION
+  ELECTRONICS
+  ENTERTAINMENT
+  SERVICES
+  STUDENT_DEALS
+  OTHER
+}
+
+enum EventCategory {
+  TECH
+  CULTURAL
+  SPORTS
+  ACADEMIC
+  WORKSHOP
+  SOCIAL
+  OTHER
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+}
+
+enum ListingCategory {
+  BOOKS
+  ELECTRONICS
+  FURNITURE
+  ACCESSORIES
+  OTHER
+}
+
+enum ListingStatus {
+  AVAILABLE
+  SOLD
+}
+
+enum LostFoundType {
+  LOST
+  FOUND
+}
+
+enum LostFoundStatus {
+  OPEN
+  RESOLVED
+}
+
+enum ReportTargetType {
+  POST
+  DEAL
+  EVENT
+  RESOURCE
+  LISTING
+  USER
+  LOST_FOUND
+}
+
+enum ReportStatus {
+  OPEN
+  DISMISSED
+  ACTIONED
+}
+
+enum NotificationType {
+  VERIFICATION
+  COMMENT
+  LIKE
+  EVENT
+  GROUP
+  MODERATION
+  SYSTEM
+}
+
+// ── Identity & verification ──────────────────────────────────────────────────
+
+model User {
+  id                 String             @id @default(cuid())
+  email              String?            @unique
+  emailVerified      DateTime?
+  phone              String?            @unique
+  phoneVerified      DateTime?
+  name               String
+  image              String?
+  bio                String?
+  role               Role               @default(USER)
+  verificationStatus VerificationStatus @default(PENDING)
+  course             String?
+  year               String?
+  campusId           String?
+  campus             Campus?            @relation(fields: [campusId], references: [id])
+  suspendedAt        DateTime?
+  suspensionReason   String?
+
+  verificationRequests VerificationRequest[]
+  posts                Post[]
+  comments             Comment[]
+  likes                Like[]
+  savedPosts           SavedPost[]
+  deals                Deal[]
+  events               Event[]
+  eventAttendees       EventAttendee[]
+  resources            Resource[]
+  groupsCreated        Group[]               @relation("GroupCreator")
+  groupMemberships     GroupMember[]
+  listings             MarketplaceListing[]
+  lostFoundPosts       LostFoundItem[]
+  reportsFiled         Report[]              @relation("Reporter")
+  reportsActionedBy    Report[]              @relation("ActionedBy")
+  notifications        Notification[]
+  sentMessages         Message[]             @relation("SentMessages")
+  conversations        ConversationMember[]
+  groupPosts           GroupPost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([verificationStatus])
+  @@index([campusId])
+  @@index([role])
+}
+
+model VerificationRequest {
+  id           String             @id @default(cuid())
+  userId       String
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName     String
+  email        String?
+  phone        String?
+  course       String
+  year         String
+  campusId     String
+  campus       Campus             @relation(fields: [campusId], references: [id])
+  extraInfo    String?
+  collegeEmail String?
+  status       VerificationStatus @default(PENDING)
+  reviewNote   String?
+  reviewedBy   String?
+  reviewedAt   DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([userId])
+}
+
+// ── Campuses ─────────────────────────────────────────────────────────────────
+
+model Campus {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  shortName String?
+  city      String?
+  state     String?
+
+  users         User[]
+  verifications VerificationRequest[]
+  posts         Post[]
+  deals         Deal[]
+  events        Event[]
+  resources     Resource[]
+  groups        Group[]
+  listings      MarketplaceListing[]
+  lostFound     LostFoundItem[]
+
+  createdAt DateTime @default(now())
+}
+
+// ── Feed ─────────────────────────────────────────────────────────────────────
+
+model Post {
+  id       String       @id @default(cuid())
+  authorId String
+  author   User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  campusId String
+  campus   Campus       @relation(fields: [campusId], references: [id])
+  category PostCategory
+  title    String?
+  content  String
+  imageUrl String?
+  location String?
+
+  comments Comment[]
+  likes    Like[]
+  saves    SavedPost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([campusId, createdAt])
+  @@index([authorId])
+  @@index([category])
+}
+
+model Comment {
+  id       String @id @default(cuid())
+  postId   String
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content  String
+
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+model Like {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+model SavedPost {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+// ── Deals ────────────────────────────────────────────────────────────────────
+
+model Deal {
+  id              String       @id @default(cuid())
+  authorId        String
+  author          User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  campusId        String
+  campus          Campus       @relation(fields: [campusId], references: [id])
+  title           String
+  description     String
+  business        String
+  location        String?
+  originalPrice   Int?
+  discountedPrice Int?
+  discountPercent Int?
+  category        DealCategory
+  expiresAt       DateTime?
+  imageUrl        String?
+  likes           Int          @default(0)
+  likedBy         String[]     @default([])
+
+  createdAt DateTime @default(now())
+
+  @@index([campusId, createdAt])
+  @@index([category])
+  @@index([expiresAt])
+}
+
+// ── Events ───────────────────────────────────────────────────────────────────
+
+model Event {
+  id          String        @id @default(cuid())
+  organizerId String
+  organizer   User          @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  campusId    String
+  campus      Campus        @relation(fields: [campusId], references: [id])
+  title       String
+  description String
+  startsAt    DateTime
+  location    String
+  category    EventCategory
+  imageUrl    String?
+  regLink     String?
+
+  attendees EventAttendee[]
+
+  createdAt DateTime @default(now())
+
+  @@index([campusId, startsAt])
+  @@index([category])
+}
+
+model EventAttendee {
+  id      String @id @default(cuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+// ── Resources ────────────────────────────────────────────────────────────────
+
+model Resource {
+  id          String  @id @default(cuid())
+  authorId    String
+  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  campusId    String
+  campus      Campus  @relation(fields: [campusId], references: [id])
+  title       String
+  description String
+  subject     String
+  course      String?
+  semester    String?
+  link        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([campusId, createdAt])
+  @@index([subject])
+}
+
+// ── Study groups ─────────────────────────────────────────────────────────────
+
+model Group {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  subject     String?
+  creatorId   String
+  creator     User    @relation("GroupCreator", fields: [creatorId], references: [id])
+  campusId    String
+  campus      Campus  @relation(fields: [campusId], references: [id])
+
+  members GroupMember[]
+  posts   GroupPost[]
+
+  createdAt DateTime @default(now())
+
+  @@index([campusId])
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model GroupPost {
+  id       String @id @default(cuid())
+  groupId  String
+  group    Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content  String
+
+  createdAt DateTime @default(now())
+
+  @@index([groupId, createdAt])
+}
+
+// ── Marketplace ──────────────────────────────────────────────────────────────
+
+model MarketplaceListing {
+  id          String           @id @default(cuid())
+  sellerId    String
+  seller      User             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  campusId    String
+  campus      Campus           @relation(fields: [campusId], references: [id])
+  title       String
+  description String
+  price       Int
+  condition   ListingCondition
+  category    ListingCategory
+  imageUrl    String?
+  location    String?
+  status      ListingStatus    @default(AVAILABLE)
+
+  createdAt DateTime @default(now())
+
+  @@index([campusId, createdAt])
+  @@index([category])
+}
+
+// ── Lost & Found ─────────────────────────────────────────────────────────────
+
+model LostFoundItem {
+  id          String          @id @default(cuid())
+  authorId    String
+  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  campusId    String
+  campus      Campus          @relation(fields: [campusId], references: [id])
+  type        LostFoundType
+  title       String
+  description String
+  location    String?
+  lastSeenAt  DateTime?
+  imageUrl    String?
+  status      LostFoundStatus @default(OPEN)
+
+  createdAt DateTime @default(now())
+
+  @@index([campusId, createdAt])
+  @@index([type])
+}
+
+// ── Moderation ───────────────────────────────────────────────────────────────
+
+model Report {
+  id             String           @id @default(cuid())
+  reporterId     String
+  reporter       User             @relation("Reporter", fields: [reporterId], references: [id])
+  targetType     ReportTargetType
+  targetId       String
+  reason         String
+  details        String?
+  status         ReportStatus     @default(OPEN)
+  actionTaken    String?
+  actionedBy     String?
+  actionedByUser User?            @relation("ActionedBy", fields: [actionedBy], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([reporterId])
+}
+
+// ── Notifications & messaging ────────────────────────────────────────────────
+
+model Notification {
+  id     String           @id @default(cuid())
+  userId String
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type   NotificationType
+  title  String
+  body   String?
+  link   String?
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Conversation {
+  id      String  @id @default(cuid())
+  isGroup Boolean @default(false)
+  title   String?
+
+  members  ConversationMember[]
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ConversationMember {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime?
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id])
+  body           String
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}
