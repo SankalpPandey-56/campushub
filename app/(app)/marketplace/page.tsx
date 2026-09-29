@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { db } from "@/lib/db";
+import { isFlagged } from "@/lib/flags";
 import { requireMember } from "@/lib/auth/guard";
 import { EmptyState, Chip } from "@/components/ui/primitives";
 import { Icon } from "@/components/icons";
@@ -15,11 +16,13 @@ export const dynamic = "force-dynamic";
 
 export default async function MarketplacePage({ searchParams }: { searchParams: Promise<{ cat?: string }> }) {
   const viewer = await requireMember();
+  const marketplaceOn = await isFlagged("marketplace");
   const { cat } = await searchParams;
   const active = LISTING_CATEGORIES.some((c) => c.key === cat) ? (cat as ListingCategoryKey) : null;
 
   const listings = await db.marketplaceListing.findMany({
     where: { campusId: viewer.campusId ?? undefined, ...(active ? { category: active } : {}) },
+    // When the flag is off, only listings from the last 30 days stay visible.
     orderBy: { createdAt: "desc" },
     take: 60,
     include: { seller: { select: { id: true, name: true, image: true } } },
@@ -32,10 +35,18 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           <h1 className="font-display text-[22px] font-bold tracking-tight">Marketplace</h1>
           <p className="mt-0.5 text-[13px] text-[color:var(--color-ink-soft)]">Buy, sell, pass it on — within your campus only.</p>
         </div>
-        <Link href="/marketplace/new" className="btn-solid h-9 shrink-0 px-3.5 text-[13px]">
-          <Icon.plus size={15} /> List an item
-        </Link>
+        {marketplaceOn ? (
+          <Link href="/marketplace/new" className="btn-solid h-9 shrink-0 px-3.5 text-[13px]">
+            <Icon.plus size={15} /> List an item
+          </Link>
+        ) : null}
       </div>
+
+      {!marketplaceOn ? (
+        <p className="mb-4 rounded-lg border border-[color:var(--color-line)] bg-[color:var(--color-paper-deep)] px-4 py-3 text-[13px] text-[color:var(--color-ink-soft)]">
+          New listings are paused by the admin. Existing listings stay visible.
+        </p>
+      ) : null}
 
       <nav aria-label="Listing categories" className="mb-4 -mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ul className="flex w-max items-center gap-1.5">

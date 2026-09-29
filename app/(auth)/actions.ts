@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { isFlagged } from "@/lib/flags";
 import { issueOtp, verifyOtp, twilioVerifyCheck } from "@/lib/auth/otp";
 import { signSession, sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
 
@@ -15,6 +16,9 @@ export type LoginState = {
 };
 
 export async function sendOtpAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
+  if (!(await isFlagged("signups"))) {
+    return { step: "phone", error: "New signups are paused right now. If you already have an account, contact the admin." };
+  }
   const parsed = z.string().min(6).safeParse(formData.get("phone"));
   if (!parsed.success) return { step: "phone", error: "Enter your mobile number." };
 

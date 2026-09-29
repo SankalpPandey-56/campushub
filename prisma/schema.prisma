@@ -197,6 +197,14 @@ model OtpToken {
   @@index([phone, createdAt])
 }
 
+// ── Platform & developer ─────────────────────────────────────────────────────
+
+model FeatureFlag {
+  key       String   @id
+  enabled   Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
 // ── Campuses ─────────────────────────────────────────────────────────────────
 
 model Campus {

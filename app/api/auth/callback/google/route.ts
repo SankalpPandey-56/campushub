@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { isFlagged } from "@/lib/flags";
 import { exchangeGoogleCode } from "@/lib/auth/google";
 import { signSession, sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
 
@@ -34,6 +35,14 @@ export async function GET(req: NextRequest) {
   const email = profile.email.toLowerCase();
   const adminEmail = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
   const isAdmin = adminEmail !== "" && email === adminEmail;
+
+  // Signup pause: block brand-new accounts (admins always get through).
+  if (!isAdmin) {
+    const existing = await db.user.findUnique({ where: { email }, select: { id: true } });
+    if (!existing && !(await isFlagged("signups"))) {
+      return NextResponse.redirect(new URL("/login?error=signups_paused", base));
+    }
+  }
 
   const user = await db.user.upsert({
     where: { email },

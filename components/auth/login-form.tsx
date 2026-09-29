@@ -19,9 +19,11 @@ export function LoginForm() {
   const formError =
     oauthError === "google_unconfigured"
       ? "Google sign-in isn't configured yet — use phone login or contact the admin."
-      : oauthError === "oauth_state" || oauthError === "oauth_failed"
-        ? "Google sign-in failed. Please try again."
-        : null;
+      : oauthError === "signups_paused"
+        ? "New signups are paused right now. If you already have an account, sign in again or contact the admin."
+        : oauthError === "oauth_state" || oauthError === "oauth_failed"
+          ? "Google sign-in failed. Please try again."
+          : null;
 
   function submit(kind: "send" | "verify") {
     const formData = new FormData(document.getElementById("login-form") as HTMLFormElement);

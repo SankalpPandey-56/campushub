@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { readSession } from "@/lib/auth/session";
+import { isFlagged } from "@/lib/flags";
 import { Logo } from "@/components/logo";
 import { Icon } from "@/components/icons";
 import { APP_TAGLINE } from "@/lib/constants";
@@ -11,6 +13,9 @@ export const metadata = {
 };
 
 export default async function LandingPage() {
+  // Admins can take the landing page down entirely (feature flag).
+  if (!(await isFlagged("public_landing"))) redirect("/login");
+
   const session = await readSession();
   const cta = session ? { href: "/feed", label: "Open CampusHub" } : { href: "/login", label: "Enter CampusHub" };
 

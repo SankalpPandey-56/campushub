@@ -15,6 +15,7 @@ const NAV: Array<{ href: string; label: string; icon: IconName }> = [
   { href: "/admin/marketplace", label: "Marketplace", icon: "box" },
   { href: "/admin/reports", label: "Reports", icon: "flag" },
   { href: "/admin/settings", label: "Settings", icon: "settings" },
+  { href: "/admin/dev", label: "Developer", icon: "sparkles" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
