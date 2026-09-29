@@ -134,6 +134,7 @@ model User {
   comments             Comment[]
   likes                Like[]
   savedPosts           SavedPost[]
+  savedDeals           SavedDeal[]
   deals                Deal[]
   events               Event[]
   eventAttendees       EventAttendee[]
@@ -209,6 +210,7 @@ model Campus {
   verifications VerificationRequest[]
   posts         Post[]
   deals         Deal[]
+  savedDeals    SavedDeal[]
   events        Event[]
   resources     Resource[]
   groups        Group[]
@@ -281,6 +283,19 @@ model SavedPost {
 
 // ── Deals ────────────────────────────────────────────────────────────────────
 
+model SavedDeal {
+  id       String  @id @default(cuid())
+  dealId   String
+  deal     Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campus   Campus? @relation(fields: [campusId], references: [id])
+  campusId String?
+
+  @@unique([dealId, userId])
+  @@index([userId])
+}
+
 model Deal {
   id              String       @id @default(cuid())
   authorId        String
@@ -300,7 +315,8 @@ model Deal {
   likes           Int          @default(0)
   likedBy         String[]     @default([])
 
-  createdAt DateTime @default(now())
+  createdAt  DateTime    @default(now())
+  savedDeals SavedDeal[]
 
   @@index([campusId, createdAt])
   @@index([category])

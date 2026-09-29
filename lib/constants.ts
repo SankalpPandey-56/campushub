@@ -30,6 +30,8 @@ export const DEAL_CATEGORIES = [
   { key: "OTHER", label: "Other" },
 ] as const;
 
+export type DealCategoryKey = (typeof DEAL_CATEGORIES)[number]["key"];
+
 export const DEAL_CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
   DEAL_CATEGORIES.map((c) => [c.key, c.label]),
 );
@@ -46,6 +48,8 @@ export const EVENT_CATEGORIES = [
   { key: "OTHER", label: "Other" },
 ] as const;
 
+export type EventCategoryKey = (typeof EVENT_CATEGORIES)[number]["key"];
+
 export const EVENT_CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
   EVENT_CATEGORIES.map((c) => [c.key, c.label]),
 );
@@ -59,6 +63,8 @@ export const LISTING_CATEGORIES = [
   { key: "ACCESSORIES", label: "Accessories" },
   { key: "OTHER", label: "Other" },
 ] as const;
+
+export type ListingCategoryKey = (typeof LISTING_CATEGORIES)[number]["key"];
 
 export const LISTING_CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
   LISTING_CATEGORIES.map((c) => [c.key, c.label]),
